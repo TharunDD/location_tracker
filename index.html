@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Location Transfer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #5565aa 0%, #3d0772 100%);
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2, h3, h4, h5 {
+            color: #fff;
+            text-align: center;
+            animation: slideInUp 1s ease forwards;
+        }
+        #content {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 1s ease forwards;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            animation: pulse 1s infinite alternate;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #location {
+            margin-top: 20px;
+            animation: slideInLeft 1s ease forwards;
+        }
+        #side {
+            margin-top: 20px;
+            text-align: center;
+            animation: slideInRight 1s ease forwards;
+        }
+        iframe {
+            border: none;
+            border-radius: 10px;
+            animation: zoomIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            to {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Kongu Engineering College, Perundurai</h1>
+    <h2>IT Department</h2>
+    <h3>21ITR114</h3>
+    <h4>Cloud Computing Laboratory</h4>
+    <h5>Exercise - 9</h5>
+
+    <div id="content">
+        <p>Click the button below to get your live location:</p>
+        <!-- Button to fetch location -->
+        <button onclick="getLocation()">Get My Location</button>
+        
+        <p id="location"></p>
+    </div>
+    
+    <div id="side">
+        <iframe width="80%" height="300" src="https://thingspeak.com/channels/2527018/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15" frameborder="0" allowfullscreen></iframe>
+    </div>
+    
+    <script>
+        // Function to get current location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        
+        // Function to display location data
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            document.getElementById("location").innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+            
+            // Call function to send data to ThingSpeak
+            sendDataToThingSpeak(latitude, longitude);
+        }
+        
+        // Function to send data to ThingSpeak
+        function sendDataToThingSpeak(latitude, longitude) {
+            var apiKey = "156V8XZYLW5ZVTZL"; // Replace this with your ThingSpeak API key
+            var url = "https://api.thingspeak.com/update?api_key=" + apiKey + "&field1=" + latitude + "&field2=" + longitude;
+            
+            // Send data using fetch API
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data sent to ThingSpeak:', data);
+                })
+                .catch(error => {
+                    console.error('Error sending data to ThingSpeak:', error);
+                });
+        }
+    </script>
+</body>
+</html>
